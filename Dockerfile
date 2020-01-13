@@ -48,6 +48,10 @@ RUN apt-get -qq update && \
     upx \
     postgresql \
     postgresql-server-dev-all \
+    libcrypt-rc4-perl \
+    libdigest-crc-perl \
+    libcrypt-blowfish-perl \
+    libole-storage-lite-perl \
     libimage-exiftool-perl && \
   rm -rf /var/lib/apt/lists/*
 
@@ -93,6 +97,8 @@ RUN git clone https://github.com/doomedraven/VirusTotalApi ~/tmp_build/virustota
         cd ~/tmp_build/virustotal && \
         python setup.py install
 
+RUN wget -O /usr/local/bin/DeXRAY.pl http://hexacorn.com/d/DeXRAY.pl && \
+        chmod 755 /usr/local/bin/DeXRAY.pl
 
 USER viper
 WORKDIR /home/viper
@@ -137,7 +143,7 @@ RUN crudini  --set /etc/postgresql/10/main/postgresql.conf '' idle_in_transactio
 RUN crudini  --set /etc/postgresql/10/main/postgresql.conf '' max_connections 1024
 RUN crudini  --set /etc/postgresql/10/main/postgresql.conf '' max_connections 1024
 RUN cp /home/viper/viper/viper.conf.sample /home/viper/.viper/viper.conf
-RUN crudini --set --existing /home/viper/.viper/viper.conf database connection  postgresql://viper:viper@localhost:5432/viper
+#RUN crudini --set --existing /home/viper/.viper/viper.conf database connection  postgresql://viper:viper@localhost:5432/viper
 RUN crudini  --set --existing /home/viper/.viper/viper.conf autorun commands "yara scan -t, fuzzy, pe compiletime, clamav -t, exif, shellcode"
 
 
