@@ -24,26 +24,26 @@ push:
 	docker push $(NS)/$(IMAGE_NAME):$(VERSION)
 
 shell:
-	docker exec -u viper  -ti $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) /bin/bash
+	docker run --rm  -u viper  -ti --entrypoint /bin/bash $(NS)/$(IMAGE_NAME):$(VERSION)
 
 shell-root:
-	docker exec -u root -ti  $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) /bin/bash
+	docker run --rm  -u root -ti --entrypoint /bin/bash  $(NS)/$(IMAGE_NAME):$(VERSION)
 
 run:
-	docker run  --rm --name $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) $(PORTS) $(VOLUMES) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)
+	docker run  --rm   $(PORTS) $(VOLUMES) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)
 
 daemon:
-	docker run -d --rm --name $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) $(PORTS) $(VOLUMES) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)
+	docker run -d --rm $(PORTS) $(VOLUMES) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)
 
 start:
-	docker run --name $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) $(PORTS) $(VOLUMES) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)
+	docker run $(PORTS) $(VOLUMES) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)
 
 
 stop:
-	docker stop $(CONTAINER_NAME)-$(CONTAINER_INSTANCE)
+	docker stop $(NS)/$(IMAGE_NAME):$(VERSION)
 
 rm:
-	docker rm $(CONTAINER_NAME)-$(CONTAINER_INSTANCE)
+	docker rm $(NS)/$(IMAGE_NAME):$(VERSION)
 
 release: build
 	make push -e VERSION=$(VERSION)
@@ -51,17 +51,7 @@ release: build
 test: viper
 
 viper:
-	docker run --rm ${VOLUMES} ${NS}/${IMAGE_NAME}  log2timeline.py \
-		--artifact_definitions /usr/share/artifacts \
-		--data /usr/share/viper \
-		--parsers all \
-		--partitions all \
-		--vss_stores all \
-		--hashers md5 \
-		--logfile /output/log2timeline/WinXP2.viper.log \
-		--status_view none \
-		-q  \
-		/output/log2timeline/WinXP2.pb /data/WinXP2.E01
+	docker run -it --rm ${VOLUMES} ${NS}/${IMAGE_NAME}:${VERSION}  /home/viper/.local/bin/viper
 
 
 default: build
