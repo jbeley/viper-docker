@@ -7,7 +7,7 @@ IMAGE_NAME ?= viper
 CONTAINER_NAME ?= viper
 CONTAINER_INSTANCE ?= default
 USER=viper
-VOLUMES=-v ~/Downloads/:/data:cached -v /tmp:/output:cached
+VOLUMES=-v ~/Downloads/:/data:cached -v /tmp:/output:cached -v /mnt2:/malware:cached
 .PHONY: build push shell run start stop rm release
 
 build: Dockerfile
@@ -24,10 +24,10 @@ push:
 	docker push $(NS)/$(IMAGE_NAME):$(VERSION)
 
 shell:
-	docker run --rm  -u viper  -ti --entrypoint /bin/bash $(NS)/$(IMAGE_NAME):$(VERSION)
+	docker run --rm  -u viper  -ti --entrypoint /bin/bash ${VOLUMES}  $(NS)/$(IMAGE_NAME):$(VERSION)
 
 shell-root:
-	docker run --rm  -u root -ti --entrypoint /bin/bash  $(NS)/$(IMAGE_NAME):$(VERSION)
+	docker run --rm  -u root -ti --entrypoint /bin/bash ${VOLUMES}  $(NS)/$(IMAGE_NAME):$(VERSION)
 
 run:
 	docker run  --rm   $(PORTS) $(VOLUMES) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)

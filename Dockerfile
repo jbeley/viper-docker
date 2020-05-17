@@ -106,11 +106,13 @@ RUN wget -O /usr/local/bin/DeXRAY.pl http://hexacorn.com/d/DeXRAY.pl && \
 #  mkdir /home/viper/workdir
 
 
-USER viper
 
 RUN pip3 install viper-framework
 
-RUN echo update-modules | /home/viper/.local/bin/viper
+USER viper
+
+RUN echo update-modules | /usr/local/bin/viper
+RUN echo yara rules -u | /usr/local/bin/viper
 
 RUN pip3 install \
     PyMISP \
@@ -127,19 +129,23 @@ RUN sed -i /ScrapySplashWrapper/d /home/viper/.viper/modules/requirements.txt &&
     sed -i /lief/d /home/viper/.viper/modules/requirements.txt && \
     pip3 install -r /home/viper/.viper/modules/requirements.txt
 
+        #git clone https://github.com/viper-framework/pdftools /home/viper/.viper/modules/pdftools && \
 RUN mkdir -p /home/viper/viper/viper/modules/ && \
-        git clone https://github.com/viper-framework/pdftools /home/viper/.viper/modules/pdftools && \
-		git clone https://github.com/Neo23x0/signature-base /home/viper/.viper/yara/signature-base && \
         mkdir -p /home/viper/.viper/yara/iddqd/ && \
-        curl -s  -o  /home/viper/.viper/yara/iddqd/iddqd.yar https://gist.githubusercontent.com/Neo23x0/f1bb645a4f715cb499150c5a14d82b44/raw/bb6235c3770c2a5301dbb03b9604510766a2a25e/iddqd.yar && \
+        curl -s  -o  /home/viper/.viper/yara/iddqd/iddqd.yar https://gist.githubusercontent.com/Neo23x0/f1bb645a4f715cb499150c#5a14d82b44/raw/bb6235c3770c2a5301dbb03b9604510766a2a25e/iddqd.yar && \
         git clone https://github.com/Yara-Rules/rules  /home/viper/.viper/yara/yara-rules && \
         rm -rf /home/viper/.viper/yara/yara-rules/Mobile_Malware && \
         rm /home/viper/.viper/yara/yara-rules/*yar && \
 		git clone https://github.com/InQuest/yara-rules /home/viper/.viper/yara/inquest
-
+#
 
 #WORKDIR /home/viper/viper
 #RUN pip3 install -r requirements.txt
+
+RUN git clone https://github.com/pmelson/viper-scripts /tmp/viper-scripts && \
+    cp /tmp/viper-scripts/modules/* /home/viper/.viper/modules/ && \
+    sed -i s?re.compile\(ur?re.compile\(? /home/viper/.viper/modules/newstrings.py
+
 
 USER root
 
@@ -160,6 +166,8 @@ RUN rm -rf ~/tmp_build
 
 COPY supervisord.conf /etc/supervisor/conf.d/viper.conf
 
+
+
 RUN crudini  --set /etc/postgresql/10/main/postgresql.conf '' idle_in_transaction_session_timeout 0
 RUN crudini  --set /etc/postgresql/10/main/postgresql.conf '' max_connections 1024
 RUN crudini  --set /etc/postgresql/10/main/postgresql.conf '' max_connections 1024
@@ -179,7 +187,7 @@ RUN touch /firstboot.tmp
 
 #ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 USER viper
-WORKDIR /home/viper/.local/bin
-ENTRYPOINT ["./viper"]
+#WORKDIR /home/viper/.local/bin
+ENTRYPOINT ["/usr/local/bin/viper"]
 
 #ENTRYPOINT ["../viper/viper-cli"]
